@@ -1,32 +1,30 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { Toaster as RadixToaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { PanelLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Index";
 import MessageGenerator from "./pages/MessageGenerator";
 import Leads from "./pages/Leads";
 import NotFound from "./pages/NotFound";
-import { AppHeader } from "./components/layout/AppHeader";
 
+// Initialize QueryClient outside of the component to avoid re-initialization on renders
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TooltipProvider>
-          <RadixToaster />
-          <Toaster />
-          <BrowserRouter>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <TooltipProvider>
+            <RadixToaster />
+            <Toaster />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route
@@ -51,10 +49,10 @@ const App = () => {
                 }
               />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 };
 

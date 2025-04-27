@@ -1,10 +1,9 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Search, X } from "lucide-react";
+import { Search, X, ExternalLink, Info } from "lucide-react";
 
 import {
   Form,
@@ -14,9 +13,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LeadCard } from "./LeadCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Lead } from "@/types/lead";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar } from "@/components/ui/avatar";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   query: z.string().min(1, "Search query is required"),
@@ -66,25 +74,14 @@ export function LeadSearch() {
     });
   };
 
-  // Generate mock results based on search query
   function generateMockResults(query: string): Lead[] {
     const searchTerms = query.toLowerCase().split(" ");
     
-    // Filter our mock data based on the search query
     return mockLeads.filter(lead => {
-      const leadText = `${lead.fullName} ${lead.jobTitle} ${lead.company} ${lead.location}`.toLowerCase();
+      const leadText = `${lead.fullName} ${lead.headline} ${lead.jobTitle} ${lead.company} ${lead.location}`.toLowerCase();
       return searchTerms.some(term => leadText.includes(term));
     });
   }
-  
-  // Render skeleton cards for loading state
-  const renderSkeletons = () => {
-    return Array.from({ length: 6 }).map((_, i) => (
-      <div key={i} className="animate-pulse">
-        <Skeleton className="h-[180px] rounded-md" />
-      </div>
-    ));
-  };
 
   return (
     <div className="space-y-6">
@@ -135,23 +132,70 @@ export function LeadSearch() {
       </Form>
       
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {renderSkeletons()}
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
         </div>
       ) : results ? (
         results.length > 0 ? (
           <>
-            <p className="text-muted-foreground animate-fade-in">
+            <p className="text-muted-foreground">
               Found {results.length} leads matching your search
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
-              {results.map((lead) => (
-                <LeadCard 
-                  key={lead.id} 
-                  lead={lead} 
-                  onAddToCampaign={addToCampaign}
-                />
-              ))}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Full Name</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-2">
+                        Headline
+                        <Tooltip content="Professional headline from LinkedIn">
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </Tooltip>
+                      </div>
+                    </TableHead>
+                    <TableHead>Job Title</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>LinkedIn URL</TableHead>
+                    <TableHead>About</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {results.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Avatar>
+                            <img src={lead.avatarUrl} alt={lead.fullName} />
+                          </Avatar>
+                          {lead.fullName}
+                        </div>
+                      </TableCell>
+                      <TableCell>{lead.headline}</TableCell>
+                      <TableCell>{lead.jobTitle}</TableCell>
+                      <TableCell>{lead.company}</TableCell>
+                      <TableCell>{lead.location}</TableCell>
+                      <TableCell>
+                        <a
+                          href={lead.profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-primary hover:underline"
+                        >
+                          View Profile
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {lead.about}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </>
         ) : (
@@ -209,54 +253,60 @@ export function LeadSearch() {
   );
 }
 
-// Mock data for leads
 const mockLeads: Lead[] = [
   {
     id: "1",
-    fullName: "Sarah Johnson",
-    jobTitle: "Marketing Director",
-    company: "TechCorp",
-    location: "San Francisco, CA",
-    profileUrl: "https://linkedin.com/in/sarah-johnson",
+    fullName: "Owen Kurtz",
+    headline: "Supply Chain & Manufacturing",
+    jobTitle: "Founder",
+    company: "Nest Traffic",
+    location: "Fort Myers, FL",
+    profileUrl: "https://linkedin.com/in/owen-kurtz",
+    avatarUrl: "/placeholder.svg",
+    about: "/"
   },
   {
     id: "2",
-    fullName: "Michael Chen",
-    jobTitle: "Growth Manager",
-    company: "Startify",
-    location: "New York, NY",
-    profileUrl: "https://linkedin.com/in/michael-chen",
+    fullName: "Alexander Ulreich",
+    headline: "CEO @STRAT3GIC 📈 3X Exit",
+    jobTitle: "Founder & CEO | We Help B2B",
+    company: "STRAT3GIC Marketing Agency",
+    location: "United States",
+    profileUrl: "https://linkedin.com/in/alexander-ulreich",
+    avatarUrl: "/placeholder.svg",
+    about: "A DRIVEN ENTREPRENEUR"
   },
   {
     id: "3",
-    fullName: "David Rodriguez",
-    jobTitle: "VP of Sales",
-    company: "CloudScale",
+    fullName: "Drew Wolber",
+    headline: "Entrepreneur, Proud Husband",
+    jobTitle: "Co-Founder & Managing Partner",
+    company: "FOAM Creative",
     location: "Austin, TX",
-    profileUrl: "https://linkedin.com/in/david-rodriguez",
+    profileUrl: "https://linkedin.com/in/drew-wolber",
+    avatarUrl: "/placeholder.svg",
+    about: "/"
   },
   {
     id: "4",
-    fullName: "Emily Wilson",
-    jobTitle: "Head of Growth",
-    company: "Innovate Inc",
-    location: "Boston, MA",
-    profileUrl: "https://linkedin.com/in/emily-wilson",
+    fullName: "Ben McGary",
+    headline: "MANUFACTURERS: Grow with LinkedIn",
+    jobTitle: "Tech Stack Expert",
+    company: "TactStack",
+    location: "Box Elder, SD",
+    profileUrl: "https://linkedin.com/in/ben-mcgary",
+    avatarUrl: "/placeholder.svg",
+    about: "Hi, I'm Ben McGary 👋 I DRIVE RESULTS"
   },
   {
     id: "5",
-    fullName: "James Park",
-    jobTitle: "Business Development",
-    company: "TechCorp",
-    location: "Seattle, WA",
-    profileUrl: "https://linkedin.com/in/james-park",
-  },
-  {
-    id: "6",
-    fullName: "Priya Sharma",
-    jobTitle: "Marketing Manager",
-    company: "GlobalTech",
-    location: "Chicago, IL",
-    profileUrl: "https://linkedin.com/in/priya-sharma",
-  },
+    fullName: "Shannon Hostetler",
+    headline: "Co-Founder & COO, North Star Lead Gen",
+    jobTitle: "Co-Founder & COO",
+    company: "North Star Lead Gen",
+    location: "Mount Juliet, TN",
+    profileUrl: "https://linkedin.com/in/shannon-hostetler",
+    avatarUrl: "/placeholder.svg",
+    about: "/"
+  }
 ];

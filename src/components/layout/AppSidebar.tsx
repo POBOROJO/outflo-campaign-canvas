@@ -1,4 +1,3 @@
-
 import { Home, MessageSquare, Users, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -21,7 +20,7 @@ const navItems = [
   {
     title: "Dashboard",
     icon: Home,
-    path: "/"
+    path: "/dashboard"
   },
   {
     title: "Message Generator",

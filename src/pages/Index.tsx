@@ -1,8 +1,5 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { CampaignList } from "@/components/campaigns/CampaignList";
 import { CampaignForm } from "@/components/campaigns/CampaignForm";
@@ -10,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Campaign, CampaignStatus } from "@/types/campaign";
 import { sampleCampaigns, generateId, getCurrentDate } from "@/lib/sample-data";
 import { z } from "zod";
-import { ThemeProvider } from "next-themes";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -148,44 +144,37 @@ const Dashboard = () => {
   };
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <AppSidebar />
-          <div className="flex-1 flex flex-col">
-            <AppHeader 
-              title="Campaign Dashboard" 
-              actionLabel="Create Campaign"
-              onAction={handleCreateCampaign}
-            />
-            
-            <main className="flex-1 p-4 md:p-6">
-              <div className="sm:hidden flex justify-center mb-6">
-                <Button onClick={handleCreateCampaign} className="w-full sm:w-auto">
-                  Create Campaign
-                </Button>
-              </div>
-              
-              <CampaignList
-                campaigns={campaigns}
-                isLoading={isLoading}
-                onEdit={handleEditCampaign}
-                onDelete={handleDeleteCampaign}
-                onToggleStatus={handleToggleCampaignStatus}
-              />
-              
-              <CampaignForm
-                open={formOpen}
-                onOpenChange={setFormOpen}
-                onSubmit={handleFormSubmit}
-                campaign={currentCampaign}
-                isSubmitting={isSubmitting}
-              />
-            </main>
-          </div>
+    <>
+      <AppHeader 
+        title="Campaign Dashboard" 
+        actionLabel="Create Campaign"
+        onAction={handleCreateCampaign}
+      />
+      
+      <main className="flex-1 p-4 md:p-6">
+        <div className="sm:hidden flex justify-center mb-6">
+          <Button onClick={handleCreateCampaign} className="w-full sm:w-auto">
+            Create Campaign
+          </Button>
         </div>
-      </SidebarProvider>
-    </ThemeProvider>
+        
+        <CampaignList
+          campaigns={campaigns}
+          isLoading={isLoading}
+          onEdit={handleEditCampaign}
+          onDelete={handleDeleteCampaign}
+          onToggleStatus={handleToggleCampaignStatus}
+        />
+        
+        <CampaignForm
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          onSubmit={handleFormSubmit}
+          campaign={currentCampaign}
+          isSubmitting={isSubmitting}
+        />
+      </main>
+    </>
   );
 };
 

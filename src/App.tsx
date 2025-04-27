@@ -5,8 +5,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { Toaster as RadixToaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { PanelLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import Dashboard from "./pages/Index";
 import MessageGenerator from "./pages/MessageGenerator";
@@ -27,6 +29,9 @@ const App = () => (
             <div className="min-h-screen flex w-full">
               <AppSidebar />
               <div className="flex-1 flex flex-col">
+                <div className="fixed top-4 left-4 z-50 md:hidden">
+                  <SidebarTrigger className="bg-background shadow-md" />
+                </div>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/message-generator" element={<MessageGenerator />} />

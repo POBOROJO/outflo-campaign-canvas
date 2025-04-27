@@ -14,7 +14,7 @@ export function AppHeader({ title, actionLabel, onAction }: AppHeaderProps) {
   return (
     <header className="bg-background border-b border-border flex items-center justify-between p-4 md:px-6 md:py-4 sticky top-0 z-10">
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="md:hidden" />
+        <SidebarTrigger className="hidden md:inline-flex" />
         <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
       </div>
       

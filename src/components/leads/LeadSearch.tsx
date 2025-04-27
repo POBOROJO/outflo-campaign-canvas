@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,8 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar } from "@/components/ui/avatar";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   query: z.string().min(1, "Search query is required"),
@@ -149,18 +150,20 @@ export function LeadSearch() {
                   <TableRow>
                     <TableHead>Full Name</TableHead>
                     <TableHead>
-                      <div className="flex items-center gap-2">
-                        Headline
-                        <Tooltip content="Professional headline from LinkedIn">
-                          <Info className="h-4 w-4 text-muted-foreground" />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>Headline</TooltipTrigger>
+                          <TooltipContent>
+                            Professional headline from LinkedIn
+                          </TooltipContent>
                         </Tooltip>
-                      </div>
+                      </TooltipProvider>
                     </TableHead>
                     <TableHead>Job Title</TableHead>
                     <TableHead>Company</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>LinkedIn URL</TableHead>
-                    <TableHead>About</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -169,7 +172,8 @@ export function LeadSearch() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar>
-                            <img src={lead.avatarUrl} alt={lead.fullName} />
+                            <AvatarImage src={lead.avatarUrl} alt={lead.fullName} />
+                            <AvatarFallback>{lead.fullName.charAt(0)}</AvatarFallback>
                           </Avatar>
                           {lead.fullName}
                         </div>
@@ -189,8 +193,14 @@ export function LeadSearch() {
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {lead.about}
+                      <TableCell>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => addToCampaign(lead)}
+                        >
+                          Add to Campaign
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -201,21 +211,7 @@ export function LeadSearch() {
         ) : (
           <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
             <div className="bg-muted/50 rounded-full p-6 mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-muted-foreground"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
+              <Search className="h-12 w-12 text-muted-foreground" />
             </div>
             <h3 className="font-semibold text-xl mb-1">No leads found</h3>
             <p className="text-muted-foreground text-center max-w-md mb-6">
@@ -227,21 +223,7 @@ export function LeadSearch() {
       ) : (
         <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
           <div className="bg-muted/50 rounded-full p-6 mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-muted-foreground"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
+            <Search className="h-12 w-12 text-muted-foreground" />
           </div>
           <h3 className="font-semibold text-xl mb-1">Search for leads</h3>
           <p className="text-muted-foreground text-center max-w-md mb-6">
@@ -253,60 +235,85 @@ export function LeadSearch() {
   );
 }
 
+// Expanded mock leads data
 const mockLeads: Lead[] = [
   {
     id: "1",
-    fullName: "Owen Kurtz",
-    headline: "Supply Chain & Manufacturing",
-    jobTitle: "Founder",
-    company: "Nest Traffic",
-    location: "Fort Myers, FL",
-    profileUrl: "https://linkedin.com/in/owen-kurtz",
+    fullName: "Sarah Thompson",
+    headline: "Chief Marketing Officer | B2B SaaS Marketing Expert",
+    jobTitle: "CMO",
+    company: "InnovateX Technologies",
+    location: "San Francisco, CA",
+    profileUrl: "https://linkedin.com/in/sarah-thompson",
     avatarUrl: "/placeholder.svg",
-    about: "/"
+    about: "Passionate marketing leader with 15+ years of experience in transforming B2B SaaS marketing strategies."
   },
   {
-    id: "2",
-    fullName: "Alexander Ulreich",
-    headline: "CEO @STRAT3GIC 📈 3X Exit",
-    jobTitle: "Founder & CEO | We Help B2B",
-    company: "STRAT3GIC Marketing Agency",
-    location: "United States",
-    profileUrl: "https://linkedin.com/in/alexander-ulreich",
+    id: "2", 
+    fullName: "Michael Rodriguez",
+    headline: "Senior Product Manager | AI & Machine Learning",
+    jobTitle: "Senior Product Manager",
+    company: "DataNova Solutions",
+    location: "New York, NY",
+    profileUrl: "https://linkedin.com/in/michael-rodriguez",
     avatarUrl: "/placeholder.svg",
-    about: "A DRIVEN ENTREPRENEUR"
+    about: "Building cutting-edge AI products that solve real-world business challenges."
   },
   {
     id: "3",
-    fullName: "Drew Wolber",
-    headline: "Entrepreneur, Proud Husband",
-    jobTitle: "Co-Founder & Managing Partner",
-    company: "FOAM Creative",
-    location: "Austin, TX",
-    profileUrl: "https://linkedin.com/in/drew-wolber",
+    fullName: "Emily Chen",
+    headline: "Startup Founder | FinTech Innovator",
+    jobTitle: "CEO & Founder",
+    company: "PayLite Technologies",
+    location: "Boston, MA",
+    profileUrl: "https://linkedin.com/in/emily-chen",
     avatarUrl: "/placeholder.svg",
-    about: "/"
+    about: "Disrupting the financial technology landscape with innovative payment solutions."
   },
   {
     id: "4",
-    fullName: "Ben McGary",
-    headline: "MANUFACTURERS: Grow with LinkedIn",
-    jobTitle: "Tech Stack Expert",
-    company: "TactStack",
-    location: "Box Elder, SD",
-    profileUrl: "https://linkedin.com/in/ben-mcgary",
+    fullName: "David Nguyen",
+    headline: "Enterprise Sales Director | Cloud Solutions",
+    jobTitle: "Sales Director",
+    company: "CloudPro Services",
+    location: "Seattle, WA",
+    profileUrl: "https://linkedin.com/in/david-nguyen",
     avatarUrl: "/placeholder.svg",
-    about: "Hi, I'm Ben McGary 👋 I DRIVE RESULTS"
+    about: "Helping enterprise clients transform their digital infrastructure through cutting-edge cloud technologies."
   },
   {
     id: "5",
-    fullName: "Shannon Hostetler",
-    headline: "Co-Founder & COO, North Star Lead Gen",
-    jobTitle: "Co-Founder & COO",
-    company: "North Star Lead Gen",
-    location: "Mount Juliet, TN",
-    profileUrl: "https://linkedin.com/in/shannon-hostetler",
+    fullName: "Jessica Martinez",
+    headline: "VP of Engineering | Scaling High-Performance Teams",
+    jobTitle: "VP of Engineering",
+    company: "TechNova Innovations",
+    location: "Austin, TX",
+    profileUrl: "https://linkedin.com/in/jessica-martinez",
     avatarUrl: "/placeholder.svg",
-    about: "/"
-  }
+    about: "Building and leading world-class engineering teams that deliver exceptional software products."
+  },
+  {
+    id: "6",
+    fullName: "Alex Kim",
+    headline: "Digital Transformation Consultant | Strategy & Innovation",
+    jobTitle: "Senior Consultant",
+    company: "Global Strategy Partners",
+    location: "Chicago, IL",
+    profileUrl: "https://linkedin.com/in/alex-kim",
+    avatarUrl: "/placeholder.svg",
+    about: "Guiding organizations through complex digital transformation journeys."
+  },
+  {
+    id: "7",
+    fullName: "Rachel Patel",
+    headline: "UX Design Leader | Customer Experience Strategist",
+    jobTitle: "Head of UX Design",
+    company: "UserCentric Labs",
+    location: "Portland, OR",
+    profileUrl: "https://linkedin.com/in/rachel-patel",
+    avatarUrl: "/placeholder.svg",
+    about: "Creating intuitive and delightful user experiences that drive business success."
+  },
 ];
+
+export default LeadSearch;

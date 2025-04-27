@@ -1,5 +1,6 @@
+
 import { Home, MessageSquare, Users, Settings } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -44,7 +45,9 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="flex items-center justify-between p-4">
         <div className="flex items-center">
-          <span className="font-bold text-xl text-sidebar-foreground">OutFlo</span>
+          <Link to="/" className="font-bold text-xl text-sidebar-foreground hover:opacity-80 transition-opacity">
+            OutFlo
+          </Link>
         </div>
         <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
       </SidebarHeader>

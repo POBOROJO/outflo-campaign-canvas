@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardContent,
@@ -12,10 +11,9 @@ import { Lead } from "@/types/lead";
 
 interface LeadCardProps {
   lead: Lead;
-  onAddToCampaign?: (lead: Lead) => void;
 }
 
-export function LeadCard({ lead, onAddToCampaign }: LeadCardProps) {
+export function LeadCard({ lead }: LeadCardProps) {
   return (
     <Card className="animate-fade-in hover-scale">
       <CardHeader className="pb-2">
@@ -51,15 +49,6 @@ export function LeadCard({ lead, onAddToCampaign }: LeadCardProps) {
         >
           View Profile <ExternalLink className="h-3 w-3" />
         </a>
-        {onAddToCampaign && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onAddToCampaign(lead)}
-          >
-            Add to Campaign
-          </Button>
-        )}
       </CardFooter>
     </Card>
   );

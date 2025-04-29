@@ -11,7 +11,9 @@ if (!GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is not set");
 }
 
-export const generatePersonalizedMessage = async (input: IMessageInput) => {
+export const generatePersonalizedMessage = async (
+  input: IMessageInput
+): Promise<IMessageResponse> => {
   const genai = new GoogleGenAI({
     apiKey: GEMINI_API_KEY,
   });
@@ -23,8 +25,8 @@ export const generatePersonalizedMessage = async (input: IMessageInput) => {
       model: "gemini-2.0-flash",
       contents: prompt,
     });
-    const response = result.text;
-    return { response };
+    const response = result.text || "Failed to generate message";
+    return { message: response };
   } catch (error) {
     console.error("Gemini API error:", error);
     throw new Error("Failed to generate personalized message");

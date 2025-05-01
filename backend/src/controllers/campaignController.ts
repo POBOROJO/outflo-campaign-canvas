@@ -24,7 +24,7 @@ export const getCampaignById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const campaign = await Campaign.findById(id);
     if (!campaign || campaign.status === "deleted") {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Campaign not found",
       });
@@ -47,13 +47,24 @@ export const createCampaign = async (req: Request, res: Response) => {
   //here we are validating the request body using express-validator
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       message: "Validation errors",
       errors: errors.array(),
     });
   }
   try {
+    // Check for duplicate campaign by name
+    const existingCampaign = await Campaign.findOne({
+      name: req.body.name,
+      status: { $ne: "deleted" },
+    });
+    if (existingCampaign) {
+      res.status(409).json({
+        success: false,
+        message: "A campaign with this name already exists.",
+      });
+    }
     const campaign = new Campaign(req.body);
     await campaign.save();
     res.status(201).json({
@@ -73,7 +84,7 @@ export const createCampaign = async (req: Request, res: Response) => {
 export const updateCampaign = async (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       message: "Validation errors",
       errors: errors.array(),
@@ -86,7 +97,7 @@ export const updateCampaign = async (req: Request, res: Response) => {
     });
 
     if (!campaign || campaign.status === "deleted") {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Campaign not found",
       });
@@ -114,10 +125,11 @@ export const deleteCampaign = async (req: Request, res: Response) => {
       { new: true }
     );
     if (!campaign) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Campaign not found",
       });
+      return;
     }
     res.status(200).json({
       success: true,

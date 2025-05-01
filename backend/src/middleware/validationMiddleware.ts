@@ -16,7 +16,7 @@ export const campaignValidator = [
 export const messageValidator = [
   body("name").notEmpty().withMessage("Name is required"),
   body("job_title").notEmpty().withMessage("Job title is required"),
-  body("company_name").notEmpty().withMessage("Company name is required"),
+  body("company").notEmpty().withMessage("Company name is required"),
   body("location").notEmpty().withMessage("Location is required"),
   body("summary").notEmpty().withMessage("Summary is required"),
 ];

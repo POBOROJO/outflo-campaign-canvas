@@ -1,7 +1,9 @@
+export type CampaignStatus = 'active' | 'inactive' | 'deleted';
+
 export interface ICampaign {
     name: string;
     description: string;
-    status: 'active' | 'inactive' | 'deleted';
+    status: CampaignStatus;
     leads: string[];
     accountIDs: string[];
 }

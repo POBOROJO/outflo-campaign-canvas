@@ -38,7 +38,7 @@ Kickstart the project by setting up the foundation and implementing core backend
 
 6. **Message Generation API**:
    - Research and select a free AI API (e.g., DeepSeek) for message generation.
-   - Implement `POST /personalized-message` endpoint:
+   - Implement `POST /generate-message` endpoint:
      - Accept payload: `{ name, job_title, company, location, summary }`.
      - Call AI API to generate outreach message.
      - Return response: `{ message: string }`.

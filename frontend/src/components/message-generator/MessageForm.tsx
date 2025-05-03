@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { generateMessage } from "@/api/message";
+import { IMessage } from "@/types/message";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -57,13 +58,8 @@ export function MessageGenerator() {
   const onSubmit = async (data: MessageFormValues) => {
     setIsGenerating(true);
     try {
-      // Simulate API call with timeout
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Generate a message based on the form data
-      const generatedMessage = generateLinkedInMessage(data);
+      const generatedMessage = await generateMessage(data as IMessage);
       setMessage(generatedMessage);
-      
       toast({
         title: "Message Generated",
         description: "Your LinkedIn message has been successfully generated.",
@@ -71,18 +67,22 @@ export function MessageGenerator() {
     } catch (error) {
       toast({
         title: "Failed to generate message",
-        description: "An error occurred while generating your message.",
+        description:
+          error.message ||
+          "An error occurred while generating your message. Please check if the backend server is running.",
         variant: "destructive",
       });
+      console.error("Error details:", error);
     } finally {
       setIsGenerating(false);
     }
   };
-  
+
   const copyToClipboard = () => {
     if (!message) return;
-    
-    navigator.clipboard.writeText(message)
+
+    navigator.clipboard
+      .writeText(message)
       .then(() => {
         setCopied(true);
         toast({
@@ -100,23 +100,6 @@ export function MessageGenerator() {
       });
   };
 
-  // Simple template message generator
-  function generateLinkedInMessage(data: MessageFormValues): string {
-    const { name, jobTitle, company, location, summary } = data;
-    
-    const templates = [
-      `Hi ${name}, I noticed you're a ${jobTitle} at ${company}${location ? ` based in ${location}` : ''}. I'd like to connect and explore potential synergies between our companies.${summary ? ` I was particularly interested in your background in ${summary}.` : ''} Would you be open to a quick chat this week?`,
-      
-      `Hello ${name}, I came across your profile and was impressed by your role as ${jobTitle} at ${company}. ${summary ? `Your experience with ${summary} aligns well with what we're building at OutFlo.` : ''} I'd love to connect and share some ideas that might be valuable for your team${location ? ` in ${location}` : ''}.`,
-      
-      `Greetings ${name}, I'm reaching out because I believe our solution at OutFlo would be relevant to you as a ${jobTitle} at ${company}${location ? ` in ${location}` : ''}. ${summary ? `Your background in ${summary} suggests we might have a lot to discuss.` : ''} Would you be interested in learning more about how we're helping similar professionals?`
-    ];
-    
-    // Randomly select a template
-    const randomIndex = Math.floor(Math.random() * templates.length);
-    return templates[randomIndex];
-  }
-
   const resetForm = () => {
     form.reset();
     setMessage(null);
@@ -129,7 +112,8 @@ export function MessageGenerator() {
         <CardHeader>
           <CardTitle>LinkedIn Message Generator</CardTitle>
           <CardDescription>
-            Fill in the details below to generate a personalized connection message
+            Fill in the details below to generate a personalized connection
+            message
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -248,7 +232,6 @@ export function MessageGenerator() {
           </Form>
         </CardContent>
       </Card>
-
       <Card>
         <CardHeader>
           <CardTitle>Generated Message</CardTitle>
@@ -280,9 +263,9 @@ export function MessageGenerator() {
         </CardContent>
         {message && (
           <CardFooter className="flex justify-end">
-            <Button 
-              onClick={copyToClipboard} 
-              variant="outline" 
+            <Button
+              onClick={copyToClipboard}
+              variant="outline"
               className="hover-scale"
             >
               {copied ? (

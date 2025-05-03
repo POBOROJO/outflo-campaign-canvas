@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const API_URL_CAMPAIGNS = process.env.VITE_API_URL_CAMPAIGNS;
+const API_URL_CAMPAIGNS = process.env.VITE_API_URL_CAMPAIGNS || "http://localhost:8000/api/v1/campaigns";
 
 export const getCampaigns = async (): Promise<ICampaign[]> => {
   try {

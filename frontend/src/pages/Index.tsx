@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { CampaignList } from "@/components/campaigns/CampaignList";
 import { CampaignForm } from "@/components/campaigns/CampaignForm";
 import { Button } from "@/components/ui/button";
-import { Campaign, CampaignStatus } from "@/types/campaign";
+import { ICampaign, CampaignStatus } from "@/types/campaign";
 import { sampleCampaigns, generateId, getCurrentDate } from "@/lib/sample-data";
 import { z } from "zod";
 
@@ -17,11 +17,13 @@ const formSchema = z.object({
 });
 
 const Dashboard = () => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(sampleCampaigns);
+  const [campaigns, setCampaigns] = useState<ICampaign[]>(sampleCampaigns);
   const [isLoading, setIsLoading] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentCampaign, setCurrentCampaign] = useState<Campaign | undefined>(undefined);
+  const [currentCampaign, setCurrentCampaign] = useState<ICampaign | undefined>(
+    undefined
+  );
   const { toast } = useToast();
 
   const handleCreateCampaign = () => {
@@ -29,7 +31,7 @@ const Dashboard = () => {
     setFormOpen(true);
   };
 
-  const handleEditCampaign = (campaign: Campaign) => {
+  const handleEditCampaign = (campaign: ICampaign) => {
     setCurrentCampaign(campaign);
     setFormOpen(true);
   };
@@ -37,19 +39,23 @@ const Dashboard = () => {
   const handleDeleteCampaign = async (id: string) => {
     try {
       setIsLoading(true);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Update the campaign status to deleted
-      setCampaigns(prevCampaigns =>
-        prevCampaigns.map(campaign => 
-          campaign.id === id 
-            ? { ...campaign, status: 'deleted' as CampaignStatus, updatedAt: getCurrentDate() }
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((campaign) =>
+          campaign.id === id
+            ? {
+                ...campaign,
+                status: "deleted" as CampaignStatus,
+                updatedAt: getCurrentDate(),
+              }
             : campaign
         )
       );
-      
+
       return true;
     } catch (error) {
       console.error("Error deleting campaign:", error);
@@ -59,22 +65,25 @@ const Dashboard = () => {
     }
   };
 
-  const handleToggleCampaignStatus = async (id: string, status: CampaignStatus) => {
+  const handleToggleCampaignStatus = async (
+    id: string,
+    status: CampaignStatus
+  ) => {
     try {
       setIsLoading(true);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       // Update the campaign status
-      setCampaigns(prevCampaigns =>
-        prevCampaigns.map(campaign => 
-          campaign.id === id 
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((campaign) =>
+          campaign.id === id
             ? { ...campaign, status, updatedAt: getCurrentDate() }
             : campaign
         )
       );
-      
+
       return true;
     } catch (error) {
       console.error("Error toggling campaign status:", error);
@@ -87,28 +96,28 @@ const Dashboard = () => {
   const handleFormSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
-      
+
       // Process form data
-      const formattedLeads = values.leads 
-        ? values.leads.split('\n').filter(Boolean) 
+      const formattedLeads = values.leads
+        ? values.leads.split("\n").filter(Boolean)
         : [];
-        
+
       const formattedAccountIds = values.accountIds
-        ? values.accountIds.split('\n').filter(Boolean)
+        ? values.accountIds.split("\n").filter(Boolean)
         : [];
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       if (currentCampaign) {
         // Update existing campaign
-        setCampaigns(prevCampaigns =>
-          prevCampaigns.map(campaign => 
+        setCampaigns((prevCampaigns) =>
+          prevCampaigns.map((campaign) =>
             campaign.id === currentCampaign.id
               ? {
                   ...campaign,
                   name: values.name,
-                  description: values.description || '',
+                  description: values.description || "",
                   status: values.status as CampaignStatus,
                   leads: formattedLeads,
                   accountIds: formattedAccountIds,
@@ -119,20 +128,18 @@ const Dashboard = () => {
         );
       } else {
         // Create new campaign
-        const newCampaign: Campaign = {
+        const newCampaign: ICampaign = {
           id: generateId(),
           name: values.name,
-          description: values.description || '',
+          description: values.description || "",
           status: values.status as CampaignStatus,
           leads: formattedLeads,
-          accountIds: formattedAccountIds,
-          createdAt: getCurrentDate(),
-          updatedAt: getCurrentDate(),
+          accountIDs: formattedAccountIds,
         };
-        
-        setCampaigns(prevCampaigns => [...prevCampaigns, newCampaign]);
+
+        setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
       }
-      
+
       setFormOpen(false);
       return true;
     } catch (error) {
@@ -145,19 +152,19 @@ const Dashboard = () => {
 
   return (
     <>
-      <AppHeader 
-        title="Campaign Dashboard" 
+      <AppHeader
+        title="Campaign Dashboard"
         actionLabel="Create Campaign"
         onAction={handleCreateCampaign}
       />
-      
+
       <main className="flex-1 p-4 md:p-6">
         <div className="sm:hidden flex justify-center mb-6">
           <Button onClick={handleCreateCampaign} className="w-full sm:w-auto">
             Create Campaign
           </Button>
         </div>
-        
+
         <CampaignList
           campaigns={campaigns}
           isLoading={isLoading}
@@ -165,7 +172,7 @@ const Dashboard = () => {
           onDelete={handleDeleteCampaign}
           onToggleStatus={handleToggleCampaignStatus}
         />
-        
+
         <CampaignForm
           open={formOpen}
           onOpenChange={setFormOpen}

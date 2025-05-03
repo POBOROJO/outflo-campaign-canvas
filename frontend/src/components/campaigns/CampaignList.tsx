@@ -89,7 +89,6 @@ export function CampaignList({
             <TableHead>Description</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Leads</TableHead>
-            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -146,7 +145,7 @@ export function CampaignList({
             <TableHead className="w-[300px]">Description</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Leads</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>Accounts</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -158,6 +157,7 @@ export function CampaignList({
                 <StatusBadge status={campaign.status} />
               </TableCell>
               <TableCell>{campaign.leads?.length || 0}</TableCell>
+              <TableCell>{campaign.accountIDs?.length || 0}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
@@ -181,17 +181,6 @@ export function CampaignList({
                     <Trash className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
                   </Button>
-                  <Switch
-                    checked={campaign.status === "active"}
-                    onCheckedChange={() =>
-                      handleToggleStatus(campaign._id, campaign.status)
-                    }
-                    disabled={
-                      togglingId === campaign._id ||
-                      campaign.status === "deleted"
-                    }
-                    className="ml-2"
-                  />
                 </div>
               </TableCell>
             </TableRow>

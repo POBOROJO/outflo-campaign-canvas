@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -31,21 +30,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Campaign } from "@/types/campaign";
+import { ICampaign } from "@/types/campaign";
 
 const formSchema = z.object({
   name: z.string().min(1, "Campaign name is required"),
-  description: z.string().optional(),
+  description: z.string().min(1, "Description is required"),
   status: z.enum(["active", "inactive"]),
   leads: z.string().optional(),
-  accountIds: z.string().optional(),
+  accountIDs: z.string().optional(),
 });
 
 interface CampaignFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: z.infer<typeof formSchema>) => void;
-  campaign?: Campaign;
+  campaign?: ICampaign;
   isSubmitting?: boolean;
 }
 
@@ -58,30 +57,50 @@ export function CampaignForm({
 }: CampaignFormProps) {
   const { toast } = useToast();
   const isEditing = !!campaign;
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: campaign?.name || "",
       description: campaign?.description || "",
-      status: campaign?.status === "deleted" ? "inactive" : campaign?.status || "active",
+      status:
+        campaign?.status === "deleted"
+          ? "inactive"
+          : campaign?.status || "active",
       leads: campaign?.leads?.join("\n") || "",
-      accountIds: campaign?.accountIds?.join("\n") || "",
+      accountIDs: campaign?.accountIDs?.join("\n") || "",
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      name: campaign?.name || "",
+      description: campaign?.description || "",
+      status:
+        campaign?.status === "deleted"
+          ? "inactive"
+          : campaign?.status || "active",
+      leads: campaign?.leads?.join("\n") || "",
+      accountIDs: campaign?.accountIDs?.join("\n") || "",
+    });
+  }, [campaign, form]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await onSubmit(values);
       toast({
         title: `Campaign ${isEditing ? "updated" : "created"}`,
-        description: `The campaign has been successfully ${isEditing ? "updated" : "created"}.`,
+        description: `The campaign has been successfully ${
+          isEditing ? "updated" : "created"
+        }.`,
       });
       form.reset();
     } catch (error) {
       toast({
         title: `Failed to ${isEditing ? "update" : "create"} campaign`,
-        description: `An error occurred while trying to ${isEditing ? "update" : "create"} the campaign.`,
+        description: `An error occurred while trying to ${
+          isEditing ? "update" : "create"
+        } the campaign.`,
         variant: "destructive",
       });
     }
@@ -91,7 +110,9 @@ export function CampaignForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] animate-fade-in">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Campaign" : "Create Campaign"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Campaign" : "Create Campaign"}
+          </DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update your campaign's details below."
@@ -99,7 +120,10 @@ export function CampaignForm({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -177,7 +201,7 @@ export function CampaignForm({
             />
             <FormField
               control={form.control}
-              name="accountIds"
+              name="accountIDs"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Account IDs</FormLabel>
@@ -189,7 +213,8 @@ export function CampaignForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    Enter account IDs, one per line (e.g., twitter:12345, linkedin:67890)
+                    Enter account IDs, one per line (e.g., twitter:12345,
+                    linkedin:67890)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

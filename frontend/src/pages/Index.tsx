@@ -15,10 +15,10 @@ import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1),
-  description: z.string().optional(),
+  description: z.string().min(1, "Description is required"),
   status: z.enum(["active", "inactive"]),
   leads: z.string().optional(),
-  accountIds: z.string().optional(),
+  accountIDs: z.string().optional(),
 });
 
 const Dashboard = () => {
@@ -118,8 +118,8 @@ const Dashboard = () => {
       const formattedLeads = values.leads
         ? values.leads.split("\n").filter(Boolean)
         : [];
-      const formattedAccountIds = values.accountIds
-        ? values.accountIds.split("\n").filter(Boolean)
+      const formattedAccountIDs = values.accountIDs
+        ? values.accountIDs.split("\n").filter(Boolean)
         : [];
 
       const campaignData: Partial<ICampaign> = {
@@ -127,7 +127,7 @@ const Dashboard = () => {
         description: values.description || "",
         status: values.status,
         leads: formattedLeads,
-        accountIDs: formattedAccountIds,
+        accountIDs: formattedAccountIDs,
       };
 
       if (currentCampaign) {

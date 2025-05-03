@@ -10,6 +10,8 @@ export const getCampaigns = async (req: Request, res: Response) => {
       message: "Campaigns fetched successfully",
       data: campaigns,
     });
+    return;
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -28,6 +30,7 @@ export const getCampaignById = async (req: Request, res: Response) => {
         success: false,
         message: "Campaign not found",
       });
+      return;
     }
     res.status(200).json({
       success: true,
@@ -64,6 +67,7 @@ export const createCampaign = async (req: Request, res: Response) => {
         success: false,
         message: "A campaign with this name already exists.",
       });
+      return;
     }
     const campaign = new Campaign(req.body);
     await campaign.save();
@@ -72,6 +76,7 @@ export const createCampaign = async (req: Request, res: Response) => {
       message: "Campaign created successfully",
       data: campaign,
     });
+    return;
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -101,12 +106,14 @@ export const updateCampaign = async (req: Request, res: Response) => {
         success: false,
         message: "Campaign not found",
       });
+      return;
     }
     res.status(200).json({
       success: true,
       message: "Campaign updated successfully",
       data: campaign,
     });
+    return;
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -136,6 +143,7 @@ export const deleteCampaign = async (req: Request, res: Response) => {
       message: "Campaign deleted successfully",
       data: campaign,
     });
+    return;
   } catch (error) {
     res.status(500).json({
       success: false,

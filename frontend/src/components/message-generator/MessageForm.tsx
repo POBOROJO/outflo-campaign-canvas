@@ -58,7 +58,11 @@ export function MessageGenerator() {
   const onSubmit = async (data: MessageFormValues) => {
     setIsGenerating(true);
     try {
-      const generatedMessage = await generateMessage(data as IMessage);
+      const payload = {
+        ...data,
+        job_title: data.jobTitle,
+      };
+      const generatedMessage = await generateMessage(payload as IMessage);
       setMessage(generatedMessage);
       toast({
         title: "Message Generated",

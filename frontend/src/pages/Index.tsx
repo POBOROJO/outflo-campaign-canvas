@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { CampaignList } from "@/components/campaigns/CampaignList";
 import { CampaignForm } from "@/components/campaigns/CampaignForm";
 import { Button } from "@/components/ui/button";
 import { ICampaign, CampaignStatus } from "@/types/campaign";
-import { sampleCampaigns, generateId, getCurrentDate } from "@/lib/sample-data";
+import {
+  getCampaigns,
+  addCampaign,
+  updateCampaign,
+  deleteCampaign,
+} from "@/api/campaigns";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -17,14 +22,34 @@ const formSchema = z.object({
 });
 
 const Dashboard = () => {
-  const [campaigns, setCampaigns] = useState<ICampaign[]>(sampleCampaigns);
-  const [isLoading, setIsLoading] = useState(false);
+  const [campaigns, setCampaigns] = useState<ICampaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentCampaign, setCurrentCampaign] = useState<ICampaign | undefined>(
     undefined
   );
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedCampaigns = await getCampaigns();
+        setCampaigns(fetchedCampaigns);
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+        toast({
+          title: "Failed to fetch campaigns",
+          description: "Could not load campaigns from the server.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCampaigns();
+  }, [toast]);
 
   const handleCreateCampaign = () => {
     setCurrentCampaign(undefined);
@@ -38,30 +63,19 @@ const Dashboard = () => {
 
   const handleDeleteCampaign = async (id: string) => {
     try {
-      setIsLoading(true);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Update the campaign status to deleted
-      setCampaigns((prevCampaigns) =>
-        prevCampaigns.map((campaign) =>
-          campaign.id === id
-            ? {
-                ...campaign,
-                status: "deleted" as CampaignStatus,
-                updatedAt: getCurrentDate(),
-              }
-            : campaign
-        )
-      );
-
-      return true;
+      await deleteCampaign(id);
+      setCampaigns((prev) => prev.filter((c) => c._id !== id));
+      toast({
+        title: "Campaign deleted",
+        description: "The campaign has been successfully deleted.",
+      });
     } catch (error) {
       console.error("Error deleting campaign:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      toast({
+        title: "Failed to delete campaign",
+        description: "An error occurred while trying to delete the campaign.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -69,82 +83,76 @@ const Dashboard = () => {
     id: string,
     status: CampaignStatus
   ) => {
+    const currentCampaign = campaigns.find((c) => c._id === id);
+    if (!currentCampaign) return;
+
+    const newStatus: CampaignStatus =
+      status === "active" ? "inactive" : "active";
+
     try {
-      setIsLoading(true);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Update the campaign status
-      setCampaigns((prevCampaigns) =>
-        prevCampaigns.map((campaign) =>
-          campaign.id === id
-            ? { ...campaign, status, updatedAt: getCurrentDate() }
-            : campaign
-        )
-      );
-
-      return true;
+      const updated = await updateCampaign(id, {
+        ...currentCampaign,
+        status: newStatus,
+      });
+      setCampaigns((prev) => prev.map((c) => (c._id === id ? updated : c)));
+      toast({
+        title: `Campaign ${
+          newStatus === "active" ? "activated" : "deactivated"
+        }`,
+        description: `The campaign status has been updated to ${newStatus}.`,
+      });
     } catch (error) {
       console.error("Error toggling campaign status:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      toast({
+        title: "Failed to update status",
+        description:
+          "An error occurred while trying to update the campaign status.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleFormSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-
-      // Process form data
       const formattedLeads = values.leads
         ? values.leads.split("\n").filter(Boolean)
         : [];
-
       const formattedAccountIds = values.accountIds
         ? values.accountIds.split("\n").filter(Boolean)
         : [];
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const campaignData: Partial<ICampaign> = {
+        name: values.name,
+        description: values.description || "",
+        status: values.status,
+        leads: formattedLeads,
+        accountIDs: formattedAccountIds,
+      };
 
       if (currentCampaign) {
-        // Update existing campaign
-        setCampaigns((prevCampaigns) =>
-          prevCampaigns.map((campaign) =>
-            campaign.id === currentCampaign.id
-              ? {
-                  ...campaign,
-                  name: values.name,
-                  description: values.description || "",
-                  status: values.status as CampaignStatus,
-                  leads: formattedLeads,
-                  accountIds: formattedAccountIds,
-                  updatedAt: getCurrentDate(),
-                }
-              : campaign
-          )
+        const updated = await updateCampaign(
+          currentCampaign._id,
+          campaignData as ICampaign
         );
+        setCampaigns((prev) =>
+          prev.map((c) => (c._id === currentCampaign._id ? updated : c))
+        );
+        toast({ title: "Campaign updated" });
       } else {
-        // Create new campaign
-        const newCampaign: ICampaign = {
-          id: generateId(),
-          name: values.name,
-          description: values.description || "",
-          status: values.status as CampaignStatus,
-          leads: formattedLeads,
-          accountIDs: formattedAccountIds,
-        };
-
-        setCampaigns((prevCampaigns) => [...prevCampaigns, newCampaign]);
+        const newCampaign = await addCampaign(campaignData as ICampaign);
+        setCampaigns((prev) => [...prev, newCampaign]);
+        toast({ title: "Campaign created" });
       }
 
       setFormOpen(false);
-      return true;
     } catch (error) {
       console.error("Error submitting form:", error);
-      throw error;
+      toast({
+        title: "Failed to save campaign",
+        description: "An error occurred while saving the campaign.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }

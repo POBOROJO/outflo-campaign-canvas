@@ -1,35 +1,34 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Table, 
+import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow 
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { StatusBadge, CampaignStatus } from "@/components/ui/badge-status";
 import { CampaignTableSkeleton } from "./CampaignTableSkeleton";
-import { Campaign } from "@/types/campaign";
+import { ICampaign } from "@/types/campaign";
 
 interface CampaignListProps {
-  campaigns: Campaign[] | undefined;
+  campaigns: ICampaign[] | undefined;
   isLoading: boolean;
-  onEdit: (campaign: Campaign) => void;
+  onEdit: (campaign: ICampaign) => void;
   onDelete: (id: string) => void;
   onToggleStatus: (id: string, status: CampaignStatus) => void;
 }
 
-export function CampaignList({ 
-  campaigns, 
+export function CampaignList({
+  campaigns,
   isLoading,
-  onEdit, 
+  onEdit,
   onDelete,
-  onToggleStatus 
+  onToggleStatus,
 }: CampaignListProps) {
   const { toast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -41,33 +40,40 @@ export function CampaignList({
       await onDelete(id);
       toast({
         title: "Campaign deleted",
-        description: "The campaign has been successfully deleted."
+        description: "The campaign has been successfully deleted.",
       });
     } catch (error) {
       toast({
         title: "Failed to delete campaign",
         description: "An error occurred while trying to delete the campaign.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setDeletingId(null);
     }
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: CampaignStatus) => {
+  const handleToggleStatus = async (
+    id: string,
+    currentStatus: CampaignStatus
+  ) => {
     try {
       setTogglingId(id);
-      const newStatus: CampaignStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const newStatus: CampaignStatus =
+        currentStatus === "active" ? "inactive" : "active";
       await onToggleStatus(id, newStatus);
       toast({
-        title: `Campaign ${newStatus === 'active' ? 'activated' : 'deactivated'}`,
-        description: `The campaign status has been updated to ${newStatus}.`
+        title: `Campaign ${
+          newStatus === "active" ? "activated" : "deactivated"
+        }`,
+        description: `The campaign status has been updated to ${newStatus}.`,
       });
     } catch (error) {
       toast({
         title: "Failed to update status",
-        description: "An error occurred while trying to update the campaign status.",
-        variant: "destructive"
+        description:
+          "An error occurred while trying to update the campaign status.",
+        variant: "destructive",
       });
     } finally {
       setTogglingId(null);
@@ -117,16 +123,18 @@ export function CampaignList({
         </div>
         <h3 className="font-semibold text-xl mb-1">No campaigns found</h3>
         <p className="text-muted-foreground text-center max-w-md mb-6">
-          Get started by creating your first campaign. Campaigns allow you to organize
-          and track your marketing efforts.
+          Get started by creating your first campaign. Campaigns allow you to
+          organize and track your marketing efforts.
         </p>
       </div>
     );
   }
 
   const truncateText = (text: string, maxLength: number) => {
-    if (!text) return '';
-    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    if (!text) return "";
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
   };
 
   return (
@@ -143,7 +151,7 @@ export function CampaignList({
         </TableHeader>
         <TableBody>
           {campaigns.map((campaign) => (
-            <TableRow key={campaign.id} className="animate-fade-in">
+            <TableRow key={campaign._id} className="animate-fade-in">
               <TableCell className="font-medium">{campaign.name}</TableCell>
               <TableCell>{truncateText(campaign.description, 80)}</TableCell>
               <TableCell>
@@ -156,7 +164,7 @@ export function CampaignList({
                     variant="outline"
                     size="icon"
                     onClick={() => onEdit(campaign)}
-                    disabled={campaign.status === 'deleted'}
+                    disabled={campaign.status === "deleted"}
                   >
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">Edit</span>
@@ -164,16 +172,24 @@ export function CampaignList({
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => handleDelete(campaign.id)}
-                    disabled={deletingId === campaign.id || campaign.status === 'deleted'}
+                    onClick={() => handleDelete(campaign._id)}
+                    disabled={
+                      deletingId === campaign._id ||
+                      campaign.status === "deleted"
+                    }
                   >
                     <Trash className="h-4 w-4" />
                     <span className="sr-only">Delete</span>
                   </Button>
                   <Switch
-                    checked={campaign.status === 'active'}
-                    onCheckedChange={() => handleToggleStatus(campaign.id, campaign.status)}
-                    disabled={togglingId === campaign.id || campaign.status === 'deleted'}
+                    checked={campaign.status === "active"}
+                    onCheckedChange={() =>
+                      handleToggleStatus(campaign._id, campaign.status)
+                    }
+                    disabled={
+                      togglingId === campaign._id ||
+                      campaign.status === "deleted"
+                    }
                     className="ml-2"
                   />
                 </div>

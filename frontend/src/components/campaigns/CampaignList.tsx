@@ -80,6 +80,8 @@ export function CampaignList({
     }
   };
 
+  console.log("[CampaignList.tsx] Received campaigns prop:", campaigns);
+
   if (isLoading) {
     return (
       <Table>

@@ -135,13 +135,37 @@ const Dashboard = () => {
           currentCampaign._id,
           campaignData as ICampaign
         );
-        setCampaigns((prev) =>
-          prev.map((c) => (c._id === currentCampaign._id ? updated : c))
-        );
+        console.log("[Index.tsx] Updated campaign data from API:", updated);
+        setCampaigns((prev) => {
+          console.log(
+            "[Index.tsx] Previous campaigns state (before update):",
+            prev
+          );
+          const newState = prev.map((c) =>
+            c._id === currentCampaign._id ? updated : c
+          );
+          console.log(
+            "[Index.tsx] New campaigns state (after update):",
+            newState
+          );
+          return newState;
+        });
         toast({ title: "Campaign updated" });
       } else {
         const newCampaign = await addCampaign(campaignData as ICampaign);
-        setCampaigns((prev) => [...prev, newCampaign]);
+        console.log("[Index.tsx] New campaign data from API:", newCampaign);
+        setCampaigns((prev) => {
+          console.log(
+            "[Index.tsx] Previous campaigns state (before create):",
+            prev
+          );
+          const newState = [...prev, newCampaign];
+          console.log(
+            "[Index.tsx] New campaigns state (after create):",
+            newState
+          );
+          return newState;
+        });
         toast({ title: "Campaign created" });
       }
 

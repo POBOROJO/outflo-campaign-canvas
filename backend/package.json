@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node dist/index.js",
     "build": "tsc",
-    "start": "nodemon src/index.ts"
+    "start": "nodemon src/index.ts",
+    "scrape": "nodemon src/services/linkedinScraper.ts"
   },
   "keywords": [],
   "author": "",

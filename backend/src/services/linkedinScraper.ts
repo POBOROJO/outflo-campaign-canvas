@@ -1,18 +1,30 @@
-// linkedinScraper.ts
 import mongoose from "mongoose";
 import { ILinkedInProfile } from "../types";
 import ProfileModel from "../models/profileModel";
-import dotenv from "dotenv";
 
-dotenv.config();
+
+// Function to extract CSRF token from cookies
+function getCsrfToken(cookies: string): string | null {
+  const match = cookies.match(/JSESSIONID="ajax:([^"]+)"/);
+  return match ? `ajax:${match[1]}` : null;
+}
 
 // Scrape Function
 async function scrapeLinkedInProfiles(
   searchTerm: string,
-  page: number = 1
+  page: number
 ): Promise<ILinkedInProfile[]> {
   try {
-    const cookies = process.env.LINKEDIN_COOKIES!;
+    const cookies = "<place-your-cookies-here-without-quotes>";
+    if (!cookies) {
+      throw new Error("Cookies not found.");
+    }
+
+    const csrfToken = getCsrfToken(cookies);
+    if (!csrfToken) {
+      throw new Error("Could not extract CSRF token from JSESSIONID cookie.");
+    }
+
     const start = (page - 1) * 10;
 
     const res = await fetch(
@@ -22,7 +34,7 @@ async function scrapeLinkedInProfiles(
       {
         headers: {
           accept: "application/vnd.linkedin.normalized+json+2.1",
-          "csrf-token": "ajax:1690738384797705558",
+          "csrf-token": csrfToken,
           "sec-ch-ua":
             '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
           "sec-fetch-site": "same-origin",
@@ -105,12 +117,16 @@ async function saveProfiles(profiles: ILinkedInProfile[]) {
         console.error("Error saving profile:", error.message);
     }
   }
+  console.log("Profiles data attempted to save:", profiles);
   console.log(`Saved ${profiles.length} profiles`);
+  console.log(
+    "--------------Saved profiles to MongoDB successfully-------------"
+  );
 }
 
 // Main Execution
 const searchTerm = "lead generation agency";
-const page = 1;
+const page = 5;
 
 scrapeLinkedInProfiles(searchTerm, page)
   .then(saveProfiles)

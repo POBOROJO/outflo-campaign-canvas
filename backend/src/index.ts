@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db";
 import campaignRoutes from "./routes/campaignRoutes";
 import messageRoutes from "./routes/messageRoutes";
+import leadsRoutes from "./routes/leadsRoutes";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ connectDB();
 // Routes
 app.use("/api/v1/campaigns", campaignRoutes);
 app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/leads", leadsRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
